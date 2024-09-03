@@ -1,35 +1,47 @@
-import tkinter as tk
-from tkinter import messagebox
+from tkinter import *
+from tkinter import filedialog
 
-def mostrar_usuarios():
-    messagebox.showinfo("Usuários","Botão de Usuários clicado")
+root = Tk()
+menubar = Menu(root)
+root.config(menu=menubar)
 
-def mostrar_cidades():
-    messagebox.showinfo("Cidades","Botão de Cidades clicado")
+root.title('Programa XXXXX')
 
-def mostrar_clientes():
-    messagebox.showinfo("Clientes","Botão de Clientes clicado")
+root.state("zoomed")
 
-def fechar_janela():
+filemenu = Menu(menubar)
+filemenu2 = Menu(menubar)
+filemenu3 = Menu(menubar)
+
+menubar.add_cascade(label='Arquivo', menu=filemenu)
+menubar.add_cascade(label='Cadastros', menu=filemenu2)
+menubar.add_cascade(label='Ajuda', menu=filemenu3)
+
+def Open():
+    filedialog.askopenfilename()
+def Save():
+    filedialog.asksaveasfilename()
+def Quit():
     root.destroy()
+def ColorBlue():
+    Text(background='blue').pack()
+def ColorRed():
+    Text(background='red').pack()
+def ColorBlack():
+    Text(background='black').pack()
+def Help():
+    text = Text(root)
+    text.pack();
+    text.insert('insert', 'Ao clicar no botão da\n'
+                          'respectiva cor, o fundo da tela\n'
+                          'aparecerá na cor escolhida.')
 
-root = tk.Tk()
-root.title("Interface de Botões")
-
-titulo = tk.Label(root, text="INFORME OS DADOS", font=("Arial", 16))
-titulo.pack(pady=20)
-
-botao_usuarios = tk.Button(root, text="Usuários", command=mostrar_usuarios)
-botao_usuarios.pack(pady=18)
-
-botao_cidades = tk.Button(root, text="Cidades", command=mostrar_cidades)
-botao_cidades.pack(pady=18)
-
-botao_clientes = tk.Button(root, text="Clientes", command=mostrar_clientes)
-botao_clientes.pack(pady=18)
-
-botao_fechar = tk.Button(root, text="Fechar", command=fechar_janela)
-botao_fechar.pack(pady=18)
-
-
+filemenu.add_command(label='Abrir...', command=Open)
+filemenu.add_command(label='Salvar como...', command=Save)
+filemenu.add_separator()
+filemenu.add_command(label='Sair', command=Quit)
+filemenu2.add_command(label='Usuários', command=ColorBlue)
+filemenu2.add_command(label='Cidades', command=ColorRed)
+filemenu2.add_command(label='Clientes', command=ColorBlack)
+filemenu3.add_command(label='Ajuda', command=Help)
 root.mainloop()
