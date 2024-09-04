@@ -1,47 +1,67 @@
-from tkinter import *
-from tkinter import filedialog
+import sys
+import tkinter as tk
+from tkinter import messagebox, Menu
+import os
 
-root = Tk()
-menubar = Menu(root)
-root.config(menu=menubar)
+# Funções para abrir diferentes páginas
+def abrir_app():
+    try:
+        janela.destroy()  # Fecha a janela atual
+        os.system('python appusu.py')  # Abre o arquivo appusu.py
+    except Exception as e:
+        messagebox.showerror("Erro", f"Não foi possível abrir appusu.py: {str(e)}")
 
-root.title('Programa XXXXX')
+def abrir_cidade():
+    try:
+        janela.destroy()  # Fecha a janela atual
+        os.system('python appcid.py')  # Abre o arquivo appcid.py
+    except Exception as e:
+        messagebox.showerror("Erro", f"Não foi possível abrir appcid.py: {str(e)}")
 
-root.state("zoomed")
+def abrir_cliente():
+    try:
+        janela.destroy()  # Fecha a janela atual
+        os.system('python appcli.py')  # Abre o arquivo appcli.py
+    except Exception as e:
+        messagebox.showerror("Erro", f"Não foi possível abrir appcli.py: {str(e)}")
 
-filemenu = Menu(menubar)
-filemenu2 = Menu(menubar)
-filemenu3 = Menu(menubar)
+# Função para sair da aplicação
+def sair():
+    sys.exit()
 
-menubar.add_cascade(label='Arquivo', menu=filemenu)
-menubar.add_cascade(label='Cadastros', menu=filemenu2)
-menubar.add_cascade(label='Ajuda', menu=filemenu3)
+# Função para mostrar a ajuda
+def mostrar_ajuda():
+    messagebox.showinfo("Ajuda", "Selecione a opção desejada no menu para abrir a página correspondente ou saia da aplicação.")
 
-def Open():
-    filedialog.askopenfilename()
-def Save():
-    filedialog.asksaveasfilename()
-def Quit():
-    root.destroy()
-def ColorBlue():
-    Text(background='blue').pack()
-def ColorRed():
-    Text(background='red').pack()
-def ColorBlack():
-    Text(background='black').pack()
-def Help():
-    text = Text(root)
-    text.pack();
-    text.insert('insert', 'Ao clicar no botão da\n'
-                          'respectiva cor, o fundo da tela\n'
-                          'aparecerá na cor escolhida.')
+# Criação da janela principal
+janela = tk.Tk()
+janela.title("Rotas")
 
-filemenu.add_command(label='Abrir...', command=Open)
-filemenu.add_command(label='Salvar como...', command=Save)
+# Criação da barra de menu
+menubar = Menu(janela)
+janela.config(menu=menubar)
+
+# Menu "Arquivo"
+filemenu = Menu(menubar, tearoff=0)
+menubar.add_cascade(label="Arquivo", menu=filemenu)
+filemenu.add_command(label="Usuários", command=abrir_app)
+filemenu.add_command(label="Cidades", command=abrir_cidade)
+filemenu.add_command(label="Clientes", command=abrir_cliente)
 filemenu.add_separator()
-filemenu.add_command(label='Sair', command=Quit)
-filemenu2.add_command(label='Usuários', command=ColorBlue)
-filemenu2.add_command(label='Cidades', command=ColorRed)
-filemenu2.add_command(label='Clientes', command=ColorBlack)
-filemenu3.add_command(label='Ajuda', command=Help)
-root.mainloop()
+filemenu.add_command(label="Sair", command=sair)
+
+# Menu "Ajuda"
+helpmenu = Menu(menubar, tearoff=0)
+menubar.add_cascade(label="Ajuda", menu=helpmenu)
+helpmenu.add_command(label="Mostrar Ajuda", command=mostrar_ajuda)
+
+# Título
+titulo = tk.Label(janela, text="Rotas", font=("Arial", 24, "bold"))
+titulo.pack(pady=20)
+
+
+
+# Executar a janela
+if _name_ == "_main_":
+    janela.state("zoomed")
+    janela.mainloop()

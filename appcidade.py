@@ -1,74 +1,89 @@
-from tkinter import *
-from usuarios import Usuarios
+import tkinter as tk
+from tkinter import messagebox
+import os
+from cidades import cidade
 
-class App:
-    def __init__(self, root):
+
+class Application:
+    def _init_(self, root):
+        self.cidade = cidade()
+
         self.root = root
-        self.root.title("Gerenciamento de Cidades")
+        self.root.title("Cadastro de Cidades")
 
-        self.lblidcidade = Label(root, text="Código")
-        self.lblidcidade.grid(row=0, column=0)
-        self.txtidcidade = Entry(root)
-        self.txtidcidade.grid(row=0, column=1)
+        # Widgets
+        self.lblIdcidade = tk.Label(root, text="ID da Cidade:")
+        self.lblIdcidade.grid(row=0, column=0)
+        self.txtIdcidade = tk.Entry(root)
+        self.txtIdcidade.grid(row=0, column=1)
 
-        self.lblnomecidade = Label(root, text="Nome da Cidade")
-        self.lblnomecidade.grid(row=1, column=0)
-        self.txtnomecidade = Entry(root)
-        self.txtnomecidade.grid(row=1, column=1)
+        self.btnBuscar = tk.Button(root, text="Buscar", command=self.buscar_cidade)
+        self.btnBuscar.grid(row=0, column=2)
 
-        self.lbluf = Label(root, text="UF")
-        self.lbluf.grid(row=2, column=0)
-        self.txtuf = Entry(root)
-        self.txtuf.grid(row=2, column=1)
+        self.lblNome = tk.Label(root, text="Nome:")
+        self.lblNome.grid(row=1, column=0)
+        self.txtNome = tk.Entry(root)
+        self.txtNome.grid(row=1, column=1)
 
-        self.lblmsg = Label(root, text="")
-        self.lblmsg.grid(row=3, column=0, columnspan=2)
+        self.lblUf = tk.Label(root, text="UF:")
+        self.lblUf.grid(row=2, column=0)
+        self.txtUf = tk.Entry(root)
+        self.txtUf.grid(row=2, column=1)
 
-        self.btnBuscar = Button(root, text="Buscar", command=self.buscarCidade)
-        self.btnBuscar.grid(row=4, column=0)
+        # Botões
+        self.btnInserir = tk.Button(root, text="Inserir", command=self.inserir_cidade)
+        self.btnInserir.grid(row=3, column=0)
 
-        self.btnInsert = Button(root, text="Inserir", command=self.inserirCidade)
-        self.btnInsert.grid(row=4, column=1)
+        self.btnAlterar = tk.Button(root, text="Alterar", command=self.alterar_cidade)
+        self.btnAlterar.grid(row=3, column=1)
 
-        self.btnAlterar = Button(root, text="Alterar", command=self.alterarCidade)
-        self.btnAlterar.grid(row=5, column=0)
+        self.btnExcluir = tk.Button(root, text="Excluir", command=self.excluir_cidade)
+        self.btnExcluir.grid(row=3, column=2)
 
-        self.btnExcluir = Button(root, text="Excluir", command=self.excluirCidade)
-        self.btnExcluir.grid(row=5, column=1)
+        self.lblMensagem = tk.Label(root, text="")
+        self.lblMensagem.grid(row=4, column=0, columnspan=3)
 
-    def buscarCidade(self):
-        cidade = Cidades()
-        idcidade = self.txtidcidade.get()
-        cidade.selectCidade(idcidade)
+        # Bind para detectar o fechamento da janela
+        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
 
-        if cidade.idcidade:
-            self.lblmsg["text"] = "Cidade encontrada!"
-            self.txtidcidade.delete(0, END)
-            self.txtidcidade.insert(INSERT, cidade.idcidade)
-            self.txtnomecidade.delete(0, END)
-            self.txtnomecidade.insert(INSERT, cidade.nomecidade)
-            self.txtuf.delete(0, END)
-            self.txtuf.insert(INSERT, cidade.uf)
+    def buscar_cidade(self):
+        idCidade = self.txtIdcidade.get()
+        resultado = self.cidade.buscar(idCidade)
+        if resultado:
+            self.txtNome.delete(0, tk.END)
+            self.txtNome.insert(tk.END, resultado[1])
+            self.txtUf.delete(0, tk.END)
+            self.txtUf.insert(tk.END, resultado[2])
+            self.lblMensagem.config(text="Busca realizada com sucesso!")
         else:
-            self.lblmsg["text"] = "Cidade não encontrada."
+            self.lblMensagem.config(text="Cidade não encontrada!")
 
-    def inserirCidade(self):
-        cidade = Cidades()
-        cidade.idcidade = self.txtidcidade.get()
-        cidade.nomecidade = self.txtnomecidade.get()
-        cidade.uf = self.txtuf.get()
-        self.lblmsg["text"] = cidade.insertCidade()
-        self.limparCampos()
+    def inserir_cidade(self):
+        nome = self.txtNome.get()
+        uf = self.txtUf.get()
+        self.cidade.inserir(nome, uf)
+        self.lblMensagem.config(text="Cidade inserida com sucesso!")
 
-    def alterarCidade(self):
-        cidade = Cidades()
-        cidade.idcidade = self.txtidcidade.get()
-        cidade.nomecidade = self.txtnomecidade.get()
-        cidade.uf = self.txtuf.get()
-        self.lblmsg["text"] = cidade.updateCidade()
-        self.limparCampos()
+    def alterar_cidade(self):
+        idCidade = self.txtIdcidade.get()
+        nome = self.txtNome.get()
+        uf = self.txtUf.get()
+        self.cidade.alterar(idCidade, nome, uf)
+        self.lblMensagem.config(text="Cidade alterada com sucesso!")
 
-    def excluirCidade(self):
-        cidade = Cidades()
-        cidade.idcidade = self.txtidcidade.get()
-        self.lblmsg["text"]
+    def excluir_cidade(self):
+        idCidade = self.txtIdcidade.get()
+        self.cidade.excluir(idCidade)
+        self.lblMensagem.config(text="Cidade excluída com sucesso!")
+
+    def on_closing(self):
+        self.root.destroy()
+        os.system('python principal.py')  # Reabre o principal.py ao fechar a janela
+
+
+# Execução da interface
+if _name_ == "_main_":
+    root = tk.Tk()
+    app = Application(root)
+    root.state("zoomed")
+    root.mainloop()

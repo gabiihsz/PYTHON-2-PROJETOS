@@ -1,7 +1,71 @@
 import tkinter as tk
 from tkinter import *
 from tkinter import ttk
-from usuarios import Usuarios
+import sqlite3
+
+class Banco:
+    def get_connection(self):
+        conn = sqlite3.connect('usuarios.db')
+        self.create_table(conn)
+        return conn
+
+    def create_table(self, conn):
+        cursor = conn.cursor()
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS tbl_usuarios (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nome TEXT NOT NULL,
+            telefone TEXT NOT NULL,
+            email TEXT NOT NULL,
+            usuario TEXT NOT NULL,
+            senha TEXT NOT NULL,
+            cidade TEXT NOT NULL
+        )
+        ''')
+        conn.commit()
+
+class Usuarios:
+    def __init__(self):
+        self.banco = Banco()
+
+    def selectUser(self, idusuario):
+        conn = self.banco.get_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM tbl_usuarios WHERE id = ?", (idusuario,))
+        user = cursor.fetchone()
+        conn.close()
+
+        if user:
+            self.idusuario, self.nome, self.telefone, self.email, self.usuario, self.senha, self.cidade = user
+            return "Usuário encontrado."
+        else:
+            return "Usuário não encontrado."
+
+    def insertUser(self):
+        conn = self.banco.get_connection()
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO tbl_usuarios (nome, telefone, email, usuario, senha, cidade) VALUES (?, ?, ?, ?, ?, ?)",
+                       (self.nome, self.telefone, self.email, self.usuario, self.senha, self.cidade))
+        conn.commit()
+        conn.close()
+        return "Usuário inserido com sucesso."
+
+    def updateUser(self):
+        conn = self.banco.get_connection()
+        cursor = conn.cursor()
+        cursor.execute("UPDATE tbl_usuarios SET nome = ?, telefone = ?, email = ?, usuario = ?, senha = ?, cidade = ? WHERE id = ?",
+                       (self.nome, self.telefone, self.email, self.usuario, self.senha, self.cidade, self.idusuario))
+        conn.commit()
+        conn.close()
+        return "Usuário atualizado com sucesso."
+
+    def deleteUser(self):
+        conn = self.banco.get_connection()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM tbl_usuarios WHERE id = ?", (self.idusuario,))
+        conn.commit()
+        conn.close()
+        return "Usuário excluído com sucesso."
 
 
 class SistemaGestao:
@@ -20,7 +84,6 @@ class SistemaGestao:
 
         self.janela_campos = Frame(self.janela)
         self.janela_campos.pack(pady=10)
-
 
         self.idUsuarioLabel = Label(self.janela_campos, text="ID Usuário:", font=self.fontePadrao)
         self.idUsuarioLabel.grid(row=0, column=0, padx=5, pady=5, sticky=E)
@@ -60,7 +123,6 @@ class SistemaGestao:
         self.cidade = Entry(self.janela_campos)
         self.cidade.grid(row=6, column=1, padx=5, pady=5)
 
-
         self.janela_botoes = Frame(self.janela)
         self.janela_botoes.pack(pady=20)
 
@@ -78,7 +140,6 @@ class SistemaGestao:
 
         self.lblmsg = Label(master, text="", font=self.fontePadrao)
         self.lblmsg.pack(pady=10)
-
 
         self.tree_frame = Frame(master)
         self.tree_frame.pack(fill=BOTH, expand=True)
@@ -116,7 +177,7 @@ class SistemaGestao:
             self.senha.delete(0, END)
             self.senha.insert(INSERT, user.senha)
             self.cidade.delete(0, END)
-            self.cidade.insert(INSERT, user .cidade)
+            self.cidade.insert(INSERT, user.cidade)
 
     def inserirUsuario(self):
         user = Usuarios()
@@ -164,11 +225,13 @@ class SistemaGestao:
             self.tree.delete(row)
 
         user = Usuarios()
-        c = user.banco.get_connection().cursor()
-        c.execute("SELECT * FROM tbl_usuarios")
-        for row in c.fetchall():
+        conn = user.banco.get_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM tbl_usuarios")
+        for row in cursor.fetchall():
             self.tree.insert("", "end", values=row)
-        c.close()
+        cursor.close()
+        conn.close()
 
 
 root = Tk()
